@@ -33,10 +33,11 @@ import time
 import rospkg
 import sys
 rospack = rospkg.RosPack()
-env_path = rospack.get_path('machine_learning')
+env_path = rospack.get_path('deep_learning')
 
 sys.path.append(env_path+'/env')
 from target_move import MoveTarget
+from bot_move import MoveBot
 
 class Env():
     def __init__(self, action_size):
@@ -55,6 +56,12 @@ class Env():
         #self.respawn_goal = Respawn()
 
         self.target = MoveTarget()
+        self.bot = MoveBot()
+
+        self.ramdom_target = False
+
+        self.ramdom_bot = False
+        self.ramdom_bot_rotate = False
         self.goalNum = 0
 
 
@@ -131,9 +138,9 @@ class Env():
         if self.get_goalbox:
             rospy.loginfo("Goal!!")
             Reward = 200
-            #self.goalNum = self.goalNum + 1
+            self.goalNum = self.goalNum + 1
             self.pub_cmd_vel.publish(Twist())
-            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum)
+            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum,self.ramdom_target)
             self.goal_distance = self.getGoalDistace()
             #self.get_goalbox = False
 
@@ -181,10 +188,12 @@ class Env():
         # if self.initGoal:
         #     self.goal_x, self.goal_y = self.target.movingAt(self.goalNum)
         #     self.initGoal = False
-        self.goal_x, self.goal_y = self.target.movingAt(self.goalNum)
+        self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target)
 
         self.goal_distance = self.getGoalDistace()
         state, done = self.getState(data)
+
+        self.bot.movingAt(self.ramdom_bot,self.ramdom_bot_rotate)
 
         return np.asarray(state)
 

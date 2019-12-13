@@ -7,6 +7,7 @@ import time
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from gazebo_msgs.msg import ModelState, ModelStates
+import random
 
 
 
@@ -40,7 +41,8 @@ class MoveTarget():
                 self.pub_model.publish(obstacle)
                 #time.sleep(5)
 
-    def movingAt(self,p):
+    def movingAt(self, p ,ramdom_target=False):
+        #print("target",ramdom_target)
         #pub_model = rospy.Publisher('gazebo/set_model_state', ModelState, queue_size=1)
         
         obstacle = ModelState()
@@ -56,12 +58,20 @@ class MoveTarget():
                 obstacle.pose = model.pose[i]
                 p = p%4
                 #print(self.goalTable[p][0])
-                obstacle.pose.position.x = float(self.goalTable[p][0])
-                obstacle.pose.position.y = float(self.goalTable[p][1])
+                if not ramdom_target:
+                    obstacle.pose.position.x = float(self.goalTable[p][0])
+                    obstacle.pose.position.y = float(self.goalTable[p][1])
+                else:
+                    obstacle.pose.position.x = float(random.randint(-13,13)/10.0)
+                    obstacle.pose.position.y = float(random.randint(-13,13)/10.0)
                 # obstacle.twist = Twist()
                 # obstacle.twist.angular.z = 0.5
                 self.pub_model.publish(obstacle)
-                rospy.loginfo("Goal at local %d" ,p)
+
+                if not ramdom_target:
+                    rospy.loginfo("Goal at local %d" ,p)
+                else:
+                    rospy.loginfo("Goal random")
                 #time.sleep(5)
 
 

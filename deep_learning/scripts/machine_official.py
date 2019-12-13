@@ -24,19 +24,18 @@ import numpy as np
 import random
 import time
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from collections import deque
 from std_msgs.msg import Float32MultiArray
 
-
-
 import rospkg
 rospack = rospkg.RosPack()
-env_path = rospack.get_path('machine_learning')
+env_path = rospack.get_path('deep_learning')
 
 sys.path.append(env_path+'/env')
 from environment_dog1 import Env
 
+import h5py
 from keras.models import Sequential, load_model
 from keras.optimizers import RMSprop
 from keras.layers import Dense, Dropout, Activation
@@ -47,17 +46,15 @@ from keras import layers
 from keras import models
 ###
 
-EPISODES = 4000
+EPISODES = 200
 
 class ReinforceAgent():
     def __init__(self, state_size, action_size):
         self.pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
-        self.dirPath = os.path.dirname(os.path.realpath(__file__))
-        self.dirPath = self.dirPath.replace('turtlebot3_dqn/nodes', 'turtlebot3_dqn/save_modeljjj/stage_1_')
-        #self.dirPath = self.dirPath.replace('turtlebot3_dqn/nodes', 'turtlebot3_dqn/save_modeljjj/stage_3_')
+        self.dirPath = env_path+'/model/'
         self.result = Float32MultiArray()
         self.load_model = False
-        self.load_episode = 1638
+        self.load_episode = 0
         self.state_size = state_size
         self.action_size = action_size
         self.episode_step = 6000
@@ -75,15 +72,14 @@ class ReinforceAgent():
         self.updateTargetModel()
         print('prepare_to_load_weight')
         if self.load_model:
-            self.model.load_weights((self.dirPath+str(self.load_episode)+"jjj.h5"), by_name = True)
-            #self.model.set_weights(load_model(self.dirPath+str(self.load_episode)+"jjj.h5").get_weights())
-	    print("successful load modef",(self.dirPath+str(self.load_episode)+"jjj.h5"))
-            with open(self.dirPath+str(self.load_episode)+'jjj.json') as outfile:
+            self.model.load_weights((self.dirPath +"model_tmp.h5"), by_name = True)
+	    print("successful load modef",(self.dirPath+str(self.load_episode)+"model_tmp.h5"))
+            with open(self.dirPath+str(self.load_episode)+'model_tmp.json') as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
-        print('haha')
+
         self.model.summary()
-        print('self.model.summary()')
+        # print('self.model.summary()')
         
         ###################################
 
@@ -134,7 +130,7 @@ class ReinforceAgent():
         
         return model
 
-    print('haha1')
+    # print('haha1')
     def getQvalue(self, reward, next_target, done):
         if done:
             return reward
@@ -202,21 +198,22 @@ if __name__ == '__main__':
     action_size = 5
 
     env = Env(action_size)
-    print('super mario!!!!!!!!!!!!!!')
+    # print('super mario!!!!!!!!!!!!!!')
     agent = ReinforceAgent(state_size, action_size)
     scores, episodes = [], []
     global_step = 0
     start_time = time.time()
-    print('!!!!!!!!!!!!!!!!!!muton!!!!!!!!!!!!!!!!!!!!')
+    # print('!!!!!!!!!!!!!!!!!!muton!!!!!!!!!!!!!!!!!!!!')
     for e in range(agent.load_episode + 1, EPISODES):
         done = False
         state = env.reset()
         score = 0
+        time_out_step = 500
         
         for t in range(agent.episode_step):
             action = agent.getAction(state)
 
-            next_state, reward, done = env.step(action)
+            next_state, reward, done, goal = env.step(action)
 
             agent.appendMemory(state, action, reward, next_state, done)
 
@@ -231,12 +228,12 @@ if __name__ == '__main__':
             get_action.data = [action, score, reward]
             pub_get_action.publish(get_action)
 
-            if e % 2 == 0:
-                agent.model.save(agent.dirPath + str(e) + 'jjj.h5')
-                with open(agent.dirPath + str(e) + 'jjj.json', 'w') as outfile:
+            if e % 5 == 0:
+                agent.model.save(agent.dirPath + str(e) + '_model_tmp.h5')
+                with open(agent.dirPath + str(e) + '_model_tmp.json', 'w') as outfile:
                     json.dump(param_dictionary, outfile)
 
-            if t >= 500:
+            if t >= time_out_step:
                 rospy.loginfo("Time out!!")
                 done = True
 
@@ -254,7 +251,20 @@ if __name__ == '__main__':
                 param_keys = ['epsilon']
                 param_values = [agent.epsilon]
                 param_dictionary = dict(zip(param_keys, param_values))
-                break
+                if not goal:
+                    break
+                else:
+                    time_out_step = t + 400
+
+        if e == 100:
+            env.ramdom_target = True
+
+        if e == 150:
+            env.ramdom_bot = True
+
+        if e == 175:
+            env.ramdom_bot_rotate = True
+
 
             global_step += 1
             if global_step % agent.target_update == 0:
