@@ -90,15 +90,24 @@ class ReinforceAgent():
                 self.epsilon = param.get('epsilon')
         
         if self.load_memory:
-            mem_file = glob.glob(self.dirPath+"*.npy")
+            mem_file = glob.glob(self.dirPath+"*.csv")
             mem_file = [int(i[-11:-7]) for i in mem_file]
             print(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5")
             h5f = h5py.File(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5",'r')
             # mem_load = np.load(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5")
-            mem_load = h5f['mem'][:]
+            #(state, action, reward, next_state, done)
+            state_load = h5f['state'][:]
+            action_load = h5f['action'][:]
+            reward_load = h5f['reward'][:]
+            next_state_load = h5f['next_state'][:]
+            done_load = h5f['done'][:]
             h5f.close()
-            for m in range(len(mem_load)):
-                self.appendMemory(m[0],m[1],m[2],m[3],m[4])
+            for m in range(len(action_load)):
+                self.appendMemory(state_load[m],
+                                    action_load[m],
+                                    reward_load[m],
+                                    next_state_load[m],
+                                    done_load[m])
 
 
         self.model.summary()
@@ -294,9 +303,22 @@ if __name__ == '__main__':
 
         if e % 5 == 0 and len(agent.memory) > 1200 and agent.save_memory:
             mem2save = np.array(agent.memory)[-1000:]
-            h5f = h5py.File(agent.dirPath + format(e, '04d') + '_mem.h5', 'w')
-            h5f.create_dataset('mem', data=mem2save)
-            h5f.close()
+            #np.savetxt(agent.dirPath + format(e, '04d') + '_mem.csv', mem2save, delimiter=",",fmt = '%s')
+            with h5py.File(agent.dirPath + format(e, '04d') + '_mem.h5', 'w') as hf:
+                #(state, action, reward, next_state, done)
+                hf.create_dataset("state", (1000,26), np.float64)
+                hf.create_dataset("action", (1000,), np.int8)
+                hf.create_dataset("reward", (1000,), np.float64)
+                hf.create_dataset("next_state", (1000,26), np.float64)
+                hf.create_dataset("done", (1000,1), np.bool)
+                hf["state"][...] = np.array([i[0] for i in mem2save])
+                hf["action"][...] = np.array([i[1] for i in mem2save])
+                hf["reward"][...] = np.array([i[2] for i in mem2save])
+                hf["next_state"][...] = np.array([i[3] for i in mem2save])
+                hf["done"][...] = np.array([i[4] for i in mem2save])
+            # h5f = h5py.File(agent.dirPath + format(e, '04d') + '_mem.h5', 'w')
+            # h5f.create_dataset('mem', data=mem2save)
+            # h5f.close()
 
         if agent.epsilon > agent.epsilon_min:
             agent.epsilon *= agent.epsilon_decay
