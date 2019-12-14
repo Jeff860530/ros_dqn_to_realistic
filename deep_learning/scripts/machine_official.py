@@ -21,6 +21,7 @@ import rospy
 import os
 import json
 import numpy as np
+import scipy.io as sio
 import random
 import time
 import sys
@@ -54,8 +55,12 @@ class ReinforceAgent():
         self.pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
         self.dirPath = env_path+'/model/'
         self.result = Float32MultiArray()
-        self.load_model = True
-        self.save_model = False
+        self.load_model = False
+        self.save_model = True
+
+        self.load_memory = False
+        self.save_memory = True
+
         self.load_episode = 0
         self.state_size = state_size
         self.action_size = action_size
@@ -83,6 +88,18 @@ class ReinforceAgent():
             with open(self.dirPath+ format(model_file[0], '04d') +'_model_tmp.json') as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
+        
+        if self.load_memory:
+            mem_file = glob.glob(self.dirPath+"*.npy")
+            mem_file = [int(i[-11:-7]) for i in mem_file]
+            print(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5")
+            h5f = h5py.File(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5",'r')
+            # mem_load = np.load(self.dirPath+ format(mem_file[0], '04d') +"_mem.h5")
+            mem_load = h5f['mem'][:]
+            h5f.close()
+            for m in range(len(mem_load)):
+                self.appendMemory(m[0],m[1],m[2],m[3],m[4])
+
 
         self.model.summary()
         # print('self.model.summary()')
@@ -236,16 +253,11 @@ if __name__ == '__main__':
                     agent.trainModel()
                 else:
                     agent.trainModel(True)
-
+            
             score += reward
             state = next_state
             get_action.data = [action, score, reward]
             pub_get_action.publish(get_action)
-
-            if e % 5 == 0 and agent.save_model:
-                agent.model.save(agent.dirPath + format(e, '04d') + '_model_tmp.h5')
-                with open(agent.dirPath + format(e, '04d') + '_model_tmp.json', 'w') as outfile:
-                    json.dump(param_dictionary, outfile)
 
             if t >= time_out_step:
                 rospy.loginfo("Time out!!")
@@ -274,6 +286,17 @@ if __name__ == '__main__':
             global_step += 1
             if global_step % agent.target_update == 0:
                 rospy.loginfo("UPDATE TARGET NETWORK")
+
+        if e % 5 == 0 and agent.save_model:
+            agent.model.save(agent.dirPath + format(e, '04d') + '_model_tmp.h5')
+            with open(agent.dirPath + format(e, '04d') + '_model_tmp.json', 'w') as outfile:
+                json.dump(param_dictionary, outfile)
+
+        if e % 5 == 0 and len(agent.memory) > 1200 and agent.save_memory:
+            mem2save = np.array(agent.memory)[-1000:]
+            h5f = h5py.File(agent.dirPath + format(e, '04d') + '_mem.h5', 'w')
+            h5f.create_dataset('mem', data=mem2save)
+            h5f.close()
 
         if agent.epsilon > agent.epsilon_min:
             agent.epsilon *= agent.epsilon_decay
