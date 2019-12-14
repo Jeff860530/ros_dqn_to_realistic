@@ -1,11 +1,16 @@
 <?xml version="1.0" ?>
 
 <robot name="dog1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="laserTopic" default="scan" />
+  <xacro:arg name="baseLink_mass" default="1.1657" />
+  <xacro:arg name="wheel_torque" default="20" />
+
   <xacro:property name="cameraSize" value="0.05"/>
   <xacro:property name="cameraMass" value="0.1"/>
 
-  <xacro:include filename="$(find dog1)/robots/dog1.gazebo" />
-  <xacro:include filename="$(find dog1)/robots/materials.xacro" />
+  <xacro:include filename="$(find dog1)/robots/dog1.gazebo" wheel_torque:="$(arg wheel_torque)"/>
+  <xacro:include filename="$(find dog1)/robots/materials.xacro"/>
 
   <link
     name="base_link">
@@ -14,7 +19,7 @@
         xyz="0.086236 -0.00053701 0.022928"
         rpy="0 0 0" />
       <mass
-        value="1.1657" />
+        value="$(arg baseLink_mass)" />
       <inertia
         ixx="0.010059"
         ixy="-3.9949E-06"

@@ -15,7 +15,9 @@
     args="0.2 0 0.08 0 0 0 base_link base_scan 40" />
 
   <!--Load dog-->
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find dog1)/robots/dog1.xacro'"/>
+  <param name="robot_description" 
+          command="$(find xacro)/xacro.py '$(find dog1)/robots/dog1.xacro'
+          wheel_torque:='20'"/>
 
   <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
    args="-urdf -x 0 -y 0 -z 0 -param robot_description -model dog" />
