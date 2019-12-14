@@ -34,6 +34,7 @@ env_path = rospack.get_path('deep_learning')
 
 sys.path.append(env_path+'/env')
 from environment_dog1 import Env
+import glob
 
 import h5py
 from keras.models import Sequential, load_model
@@ -53,7 +54,8 @@ class ReinforceAgent():
         self.pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
         self.dirPath = env_path+'/model/'
         self.result = Float32MultiArray()
-        self.load_model = False
+        self.load_model = True
+        self.save_model = False
         self.load_episode = 0
         self.state_size = state_size
         self.action_size = action_size
@@ -66,15 +68,19 @@ class ReinforceAgent():
         self.epsilon_min = 0.05
         self.batch_size = 64
         self.train_start = 64
-        self.memory = deque(maxlen=1000000)
+        self.memory = deque(maxlen=20000)
         self.model = self.buildModel()
         self.target_model = self.buildModel()
         self.updateTargetModel()
-        print('prepare_to_load_weight')
+        #print('prepare_to_load_weight')
         if self.load_model:
-            self.model.load_weights((self.dirPath +"model_tmp.h5"), by_name = True)
-	    print("successful load modef",(self.dirPath+str(self.load_episode)+"model_tmp.h5"))
-            with open(self.dirPath+str(self.load_episode)+'model_tmp.json') as outfile:
+            model_file = glob.glob(self.dirPath+"*.h5")
+            model_file = [int(i[-17:-13]) for i in model_file]
+            #print(model_file)
+            self.load_episode = model_file[0]
+            self.model.load_weights((self.dirPath+ format(model_file[0], '04d') +"_model_tmp.h5"), by_name = True)
+            print("successful load mode",self.dirPath+ format(model_file[0], '04d') +"_model_tmp.h5")
+            with open(self.dirPath+ format(model_file[0], '04d') +'_model_tmp.json') as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
 
@@ -130,7 +136,7 @@ class ReinforceAgent():
         
         return model
 
-    # print('haha1')
+
     def getQvalue(self, reward, next_target, done):
         if done:
             return reward
@@ -198,17 +204,25 @@ if __name__ == '__main__':
     action_size = 5
 
     env = Env(action_size)
-    # print('super mario!!!!!!!!!!!!!!')
+    print("Creat ReinforceAgent")
     agent = ReinforceAgent(state_size, action_size)
     scores, episodes = [], []
     global_step = 0
     start_time = time.time()
-    # print('!!!!!!!!!!!!!!!!!!muton!!!!!!!!!!!!!!!!!!!!')
     for e in range(agent.load_episode + 1, EPISODES):
         done = False
         state = env.reset()
         score = 0
         time_out_step = 500
+
+        if e > 100:
+            env.ramdom_target = True
+
+        if e > 150:
+            env.ramdom_bot = True
+
+        if e > 175:
+            env.ramdom_bot_rotate = True
         
         for t in range(agent.episode_step):
             action = agent.getAction(state)
@@ -228,9 +242,9 @@ if __name__ == '__main__':
             get_action.data = [action, score, reward]
             pub_get_action.publish(get_action)
 
-            if e % 5 == 0:
-                agent.model.save(agent.dirPath + str(e) + '_model_tmp.h5')
-                with open(agent.dirPath + str(e) + '_model_tmp.json', 'w') as outfile:
+            if e % 5 == 0 and agent.save_model:
+                agent.model.save(agent.dirPath + format(e, '04d') + '_model_tmp.h5')
+                with open(agent.dirPath + format(e, '04d') + '_model_tmp.json', 'w') as outfile:
                     json.dump(param_dictionary, outfile)
 
             if t >= time_out_step:
@@ -255,15 +269,6 @@ if __name__ == '__main__':
                     break
                 else:
                     time_out_step = t + 400
-
-        if e == 100:
-            env.ramdom_target = True
-
-        if e == 150:
-            env.ramdom_bot = True
-
-        if e == 175:
-            env.ramdom_bot_rotate = True
 
 
             global_step += 1

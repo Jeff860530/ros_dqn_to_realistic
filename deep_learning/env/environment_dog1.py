@@ -46,7 +46,7 @@ class Env():
         self.heading = 0
         self.action_size = action_size
         self.initGoal = True
-        self.get_goalbox = False
+        self.get_goalbox = True
         self.position = Pose()
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
         self.sub_odom = rospy.Subscriber('odom', Odometry, self.getOdometry)

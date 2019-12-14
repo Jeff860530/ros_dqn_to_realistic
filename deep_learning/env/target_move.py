@@ -51,6 +51,7 @@ class MoveTarget():
         #print(model.twist[2])
         # print(type(obstacle))
         #time.sleep(5)
+        px, py = 0,0
         for i in range(len(model.name)):
             if model.name[i] == 'target':  # the model name is defined in .xacro file
                 obstacle.model_name = 'target'
@@ -59,11 +60,13 @@ class MoveTarget():
                 p = p%4
                 #print(self.goalTable[p][0])
                 if not ramdom_target:
-                    obstacle.pose.position.x = float(self.goalTable[p][0])
-                    obstacle.pose.position.y = float(self.goalTable[p][1])
+                    px = float(self.goalTable[p][0])
+                    py = float(self.goalTable[p][1])
                 else:
-                    obstacle.pose.position.x = float(random.randint(-13,13)/10.0)
-                    obstacle.pose.position.y = float(random.randint(-13,13)/10.0)
+                    px = float(random.randint(-13,13)/10.0)
+                    py = float(random.randint(-13,13)/10.0)
+                obstacle.pose.position.x = px
+                obstacle.pose.position.y = py
                 # obstacle.twist = Twist()
                 # obstacle.twist.angular.z = 0.5
                 self.pub_model.publish(obstacle)
@@ -86,7 +89,7 @@ class MoveTarget():
         # # obstacle.twist.angular.z = 0.5
         # self.pub_model.publish(obstacle)
         # #time.sleep(5)
-        return float(self.goalTable[p][0]),float(self.goalTable[p][1])
+        return px,py
                 
 
             
