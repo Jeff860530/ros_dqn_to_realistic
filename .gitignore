@@ -5,3 +5,6 @@
 .AppleDouble
 
 .LSOverride
+
+
+*.pyc 
