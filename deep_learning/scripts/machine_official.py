@@ -46,6 +46,9 @@ import keras
 from keras.models import Model,load_model
 from keras import layers
 from keras import models
+import tensorflow as tf
+from keras.callbacks import TensorBoard
+
 ###
 
 EPISODES = 200
@@ -59,7 +62,7 @@ class ReinforceAgent():
         self.save_model = True
 
         self.load_memory = False
-        self.save_memory = True
+        self.save_memory = False
 
         self.load_episode = 0
         self.state_size = state_size
@@ -217,7 +220,7 @@ class ReinforceAgent():
                 X_batch = np.append(X_batch, np.array([next_states.copy()]), axis=0)
                 Y_batch = np.append(Y_batch, np.array([[rewards] * self.action_size]), axis=0)
 
-        self.model.fit(X_batch, Y_batch, batch_size=self.batch_size, epochs=1, verbose=0)
+        self.model.fit(X_batch, Y_batch, batch_size=self.batch_size, epochs=1, verbose=0,  callbacks=[tbCallBack])
 
 if __name__ == '__main__':
     rospy.init_node('turtlebot3_dqn_stage_5')
@@ -225,6 +228,9 @@ if __name__ == '__main__':
     pub_get_action = rospy.Publisher('get_action', Float32MultiArray, queue_size=5)
     result = Float32MultiArray()
     get_action = Float32MultiArray()
+
+    tbCallBack = TensorBoard(log_dir=os.getenv("HOME")+"/tboard")
+    summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q")
 
     state_size = 26
     action_size = 5
@@ -235,12 +241,15 @@ if __name__ == '__main__':
     scores, episodes = [], []
     global_step = 0
     start_time = time.time()
+
+    done_step = 0
     for e in range(agent.load_episode + 1, EPISODES):
         done = False
         state = env.reset()
         score = 0
         time_out_step = 500
 
+        
         if e > 100:
             env.ramdom_target = True
 
@@ -273,6 +282,16 @@ if __name__ == '__main__':
                 done = True
 
             if done:
+                done_step += 1
+                ##
+                with summary_writer.as_default():
+                    tf.summary.scalar('Total_reward', score,step=done_step)
+                    tf.summary.scalar('Average_max_Q_value', np.max(agent.q_value),step=done_step)
+                
+                
+                # summary_writer.summary.scalar("Total reward", score)
+                # summary_writer.summary.scalar("Average mac Q-value", np.max(agent.q_value))
+                ##
                 result.data = [score, np.max(agent.q_value)]
                 pub_result.publish(result)
                 agent.updateTargetModel()
@@ -322,4 +341,5 @@ if __name__ == '__main__':
 
         if agent.epsilon > agent.epsilon_min:
             agent.epsilon *= agent.epsilon_decay
+    summary_writer.close()
 
