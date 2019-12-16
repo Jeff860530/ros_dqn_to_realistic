@@ -58,8 +58,8 @@ class ReinforceAgent():
         self.pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
         self.dirPath = env_path+'/model/'
         self.result = Float32MultiArray()
-        self.load_model = False
-        self.save_model = True
+        self.load_model = True
+        self.save_model = False
 
         self.load_memory = False
         self.save_memory = False
@@ -85,10 +85,11 @@ class ReinforceAgent():
             model_file = glob.glob(self.dirPath+"*.h5")
             model_file = [int(i[-17:-13]) for i in model_file]
             #print(model_file)
-            self.load_episode = model_file[0]
-            self.model.load_weights((self.dirPath+ format(model_file[0], '04d') +"_model_tmp.h5"), by_name = True)
-            print("successful load mode",self.dirPath+ format(model_file[0], '04d') +"_model_tmp.h5")
-            with open(self.dirPath+ format(model_file[0], '04d') +'_model_tmp.json') as outfile:
+            maxep = max(model_file)
+            self.load_episode = maxep
+            self.model.load_weights((self.dirPath+ format(maxep, '04d') +"_model_tmp.h5"), by_name = True)
+            print("successful load mode",self.dirPath+ format(maxep, '04d') +"_model_tmp.h5")
+            with open(self.dirPath+ format(maxep, '04d') +'_model_tmp.json') as outfile:
                 param = json.load(outfile)
                 self.epsilon = param.get('epsilon')
         
@@ -113,7 +114,7 @@ class ReinforceAgent():
                                     done_load[m])
 
 
-        self.model.summary()
+        #self.model.summary()
         # print('self.model.summary()')
         
         ###################################
@@ -161,7 +162,7 @@ class ReinforceAgent():
         model=Model(inputs=model.input,outputs=preds)
         ##############
         model.compile(loss='mse', optimizer=RMSprop(lr=self.learning_rate, rho=0.9, epsilon=1e-06))
-        model.summary()
+        #model.summary()
         
         return model
 
