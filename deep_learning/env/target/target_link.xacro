@@ -2,7 +2,7 @@
 
 <robot name="target" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find machine_learning)/env/target/target_link.gazebo" />
+  <xacro:include filename="$(find deep_learning)/env/target/target_link.gazebo" />
  
   <static>0</static>
   

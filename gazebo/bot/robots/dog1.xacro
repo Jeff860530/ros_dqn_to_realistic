@@ -9,8 +9,8 @@
   <xacro:property name="cameraSize" value="0.05"/>
   <xacro:property name="cameraMass" value="0.1"/>
 
-  <xacro:include filename="$(find dog1)/robots/dog1.gazebo" wheel_torque:="$(arg wheel_torque)"/>
-  <xacro:include filename="$(find dog1)/robots/materials.xacro"/>
+  <xacro:include filename="$(find bot)/robots/dog1.gazebo"/>
+  <xacro:include filename="$(find bot)/robots/materials.xacro"/>
 
   <link
     name="base_link">
