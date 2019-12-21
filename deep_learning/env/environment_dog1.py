@@ -158,7 +158,7 @@ class Env():
         data = None
         while data is None:
             try:
-                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+                data = rospy.wait_for_message('/scan_f', LaserScan, timeout=5)
             except:
                 pass
 
@@ -181,7 +181,7 @@ class Env():
         
         while data is None:
             try:
-                data = rospy.wait_for_message('/scan', LaserScan, timeout=5)
+                data = rospy.wait_for_message('/scan_f', LaserScan, timeout=5)
             except:
                 pass
 
