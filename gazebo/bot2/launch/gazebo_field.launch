@@ -1,6 +1,6 @@
 <launch>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find bot)/world/wall2.world"/>
+    <arg name="world_name" value="$(find bot2)/world/wall2.world"/>
   </include> 
   <node
     name="tf_footprint_base"
@@ -16,7 +16,7 @@
 
   <!--Load dog-->
   <param name="robot_description" 
-          command="$(find xacro)/xacro.py '$(find bot)/robots/dog1.xacro'"/>
+          command="$(find xacro)/xacro.py '$(find bot2)/robots/dog1.xacro'"/>
 
   <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
    args="-urdf -x 0 -y 0 -z 0 -param robot_description -model dog" />

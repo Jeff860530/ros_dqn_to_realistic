@@ -9,8 +9,8 @@
   <xacro:property name="cameraSize" value="0.05"/>
   <xacro:property name="cameraMass" value="0.1"/>
 
-  <xacro:include filename="$(find bot)/robots/dog1.gazebo"/>
-  <xacro:include filename="$(find bot)/robots/materials.xacro"/>
+  <xacro:include filename="$(find bot2)/robots/dog1.gazebo"/>
+  <xacro:include filename="$(find bot2)/robots/materials.xacro"/>
 
   <link
     name="base_link">
@@ -34,7 +34,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/base_link.STL" />
+          filename="package://bot2/meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -48,7 +48,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/base_link.STL" />
+          filename="package://bot2/meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -74,7 +74,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/L_Link.STL" />
+          filename="package://bot2/meshes/L_Link.STL" />
       </geometry>
       <material
         name="">
@@ -88,7 +88,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/L_Link.STL" />
+          filename="package://bot2/meshes/L_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -132,7 +132,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/R_Link.STL" />
+          filename="package://bot2/meshes/R_Link.STL" />
       </geometry>
       <material
         name="">
@@ -146,7 +146,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/R_Link.STL" />
+          filename="package://bot2/meshes/R_Link.STL" />
       </geometry>
     </collision>
   </link>
@@ -192,7 +192,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/free_Link.STL" />
+          filename="package://bot2/meshes/free_Link.STL" />
       </geometry>
       <material
         name="">
@@ -206,7 +206,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://bot/meshes/free_Link.STL" />
+          filename="package://bot2/meshes/free_Link.STL" />
       </geometry>
       
     </collision>
