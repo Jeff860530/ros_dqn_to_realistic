@@ -118,12 +118,14 @@ class ReinforceAgent():
         # print('self.model.summary()')
         
         ###################################
-
+        
         for i,layer in enumerate(self.model.layers):
             if i==5 or i==7 :
                 layer.trainable=True
             else:
-                layer.trainable=False
+                #layer.trainable=False
+                layer.trainable=True
+             
         for i,layer in enumerate(self.model.layers):
             if layer.trainable==True:
                 print(i,layer.name,'Ture')
@@ -134,28 +136,12 @@ class ReinforceAgent():
     def buildModel(self):
         model = Sequential()
         dropout = 0.2
-        '''
-        model.add(Dense(64, input_shape=(self.state_size,), activation='relu', kernel_initializer='lecun_uniform'))
-        model.add(Dense(64, activation='relu', kernel_initializer='lecun_uniform'))
-        model.add(Dropout(dropout))
-        model.add(Dense(self.action_size, kernel_initializer='lecun_uniform'))
-        model.add(Activation('linear'))
-        model.compile(loss='mse', optimizer=RMSprop(lr=self.learning_rate, rho=0.9, epsilon=1e-06))
-        model.summary()
-        '''
         model.add(Dense(64, input_shape=(26,),activation='relu',name="dense_1", kernel_initializer='lecun_uniform'))
         model.add(Dense(64, activation='relu',name="dense_2", kernel_initializer='lecun_uniform'))
         model.add(Dropout(dropout,name="dropout_1"))
         model.add(Dense(5,name="dense_3",kernel_initializer='lecun_uniform'))
-        '''##############
-        x=Dense(64,input_shape=(26,),activation='relu',name="new_dense_one",kernel_initializer='lecun_uniform')(model.layers[0].input) 
-        x=Dense(64,activation='relu',name="new_dense_two",kernel_initializer='lecun_uniform')(x) 
-        x=Dropout(0.2,name="new_dropout")(x) 
-        x=Dense(5,activation='relu',name="new_dense_three",kernel_initializer='lecun_uniform')(x) 
-        added = keras.layers.add([model.output, x],name="layers_combine")
-        preds=Dense(5,activation='linear',name="activation")(added)
-        model=Model(inputs=model.input,outputs=preds)
-        '''##############
+
+        ##############
         x=Dense(5,activation='relu',name="new_dense_three",kernel_initializer='lecun_uniform')(model.layers[3].input) 
         added = keras.layers.add([model.output, x],name="layers_combine")
         preds=Dense(5,activation='linear',name="activation")(added)
