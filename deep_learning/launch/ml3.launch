@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <node pkg="deep_learning" name="filter" type="laser_filter.py" respawn="true"/>
+    <node pkg="deep_learning" type="machine_official.py" name="ml" output="screen"/>
+</launch>

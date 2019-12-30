@@ -51,15 +51,15 @@ from keras.callbacks import TensorBoard
 
 ###
 
-EPISODES = 200
+EPISODES = 60
 
 class ReinforceAgent():
     def __init__(self, state_size, action_size):
         self.pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
         self.dirPath = env_path+'/model/'
         self.result = Float32MultiArray()
-        self.load_model = False
-        self.save_model = True
+        self.load_model = True
+        self.save_model = False
 
         self.load_memory = False
         self.save_memory = False
@@ -84,14 +84,14 @@ class ReinforceAgent():
         if self.load_model:
             model_file = glob.glob(self.dirPath+"*.h5")
             model_file = [int(i[-17:-13]) for i in model_file]
-            print(model_file)
+            #print(model_file)
             maxep = max(model_file)
-            self.load_episode = maxep
+            #self.load_episode = maxep
             self.model.load_weights((self.dirPath+ format(maxep, '04d') +"_model_tmp.h5"), by_name = True)
             print("successful load mode",self.dirPath+ format(maxep, '04d') +"_model_tmp.h5")
             with open(self.dirPath+ format(maxep, '04d') +'_model_tmp.json') as outfile:
                 param = json.load(outfile)
-                self.epsilon = param.get('epsilon')
+                #self.epsilon = param.get('epsilon')
         
         if self.load_memory:
             mem_file = glob.glob(self.dirPath+"*.csv")
@@ -123,8 +123,8 @@ class ReinforceAgent():
             if i==5 or i==7 :
                 layer.trainable=True
             else:
-                #layer.trainable=False
-                layer.trainable=True
+                layer.trainable=False
+                #.trainable=True
              
         for i,layer in enumerate(self.model.layers):
             if layer.trainable==True:
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     get_action = Float32MultiArray()
 
     tbCallBack = TensorBoard(log_dir=os.getenv("HOME")+"/tboard")
-    summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q2")
+    summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q2_trans")
 
     state_size = 26
     action_size = 5
@@ -229,6 +229,8 @@ if __name__ == '__main__':
     global_step = 0
     start_time = time.time()
 
+    env.vx = 0.25
+
     done_step = 0
     for e in range(agent.load_episode + 1, EPISODES):
         done = False
@@ -237,13 +239,13 @@ if __name__ == '__main__':
         time_out_step = 500
 
         
-        if e > 100:
+        if e > 30:
             env.ramdom_target = True
 
-        if e > 150:
+        if e > 40:
             env.ramdom_bot = True
 
-        if e > 175:
+        if e > 55:
             env.ramdom_bot_rotate = True
         
         for t in range(agent.episode_step):
