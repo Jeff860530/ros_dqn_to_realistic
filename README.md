@@ -15,6 +15,34 @@ for 60 epochs
 step3:
 training robot in real world
 
+# How to use
+
+## Clone repositories
+
+1.Clone this repository
+
+> cd catkin_ws/src
+
+> git clone https://github.com/tony92151/ros_dqn_to_realistic.git
+
+2.Clone repository for Rplidar-A1
+
+> git clone https://github.com/robopeak/rplidar_ros.git
+
+3.Clone repository for rf2o  (not official sdk)
+
+> git clonehttps://github.com/artivis/rf2o_laser_odometry.git
+
+4.instsll dependent
+
+> sudo apt-get install remmina synaptic gimp git ros-kinetic-navigation ros-kinetic-amcl ros-kinetic-slam-gmapping ros-kinetic-mrpt-slam ros-kinetic-mrpt-icp-slam-2d ros-kinetic-robot-localization ros-kinetic-ar-track-alvar -y 
+
+6.Compile all
+
+> cd ..
+
+> catkin_make
+
 
 ### Training the ideal robot in simulator
 ```shell= 
