@@ -37,7 +37,7 @@ def vels(target_linear_vel, target_angular_vel):
 if __name__=="__main__":
     settings = termios.tcgetattr(sys.stdin)
 
-    gage = 20
+    gage = 10
     gage2 = 10
     max_ = 300
 

@@ -12,7 +12,16 @@ from nav_msgs.msg import Odometry
 
 
 class BaseControl:
-    def __init__(self):        
+    def __init__(self):    
+
+        self.odom_freq = float( rospy.get_param('~odom_freq', '50') ) # hz of odom pub
+        self.odom_topic = rospy.get_param('~odom_topic', '/odom2base_footprint') # topic name
+        self.baseId = rospy.get_param('~base_id', 'base_footprint') # base link
+        self.odomId = rospy.get_param('~odom_id', 'wheel_odom') # odom link    
+        self.pub_tf = bool(rospy.get_param('~pub_tf', True)) # whether publishes TF or not
+
+        self.VxCov = float( rospy.get_param('~vx_cov', '1.0') ) # covariance for Vx measurement
+        self.VyawCov = float( rospy.get_param('~vyaw_cov', '1.0') ) # covariance for Vyaw measurement
 
         self.wheelRad = float(0.072/2.0) #m
         self.wheelSep = float(0.17) #m
@@ -45,12 +54,12 @@ class BaseControl:
 
         # ROS handler        
         self.sub = rospy.Subscriber('/car/cmd_vel', Twist, self.cmdCB, queue_size=10)
-        #self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)
+        self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)
 
 
-        #self.timer_odom = rospy.Timer(rospy.Duration(0.1), self.timerOdomCB)
+        self.timer_odom = rospy.Timer(rospy.Duration(0.1), self.timerOdomCB)
         self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
-        #self.tf_broadcaster = tf.TransformBroadcaster()
+        self.tf_broadcaster = tf.TransformBroadcaster()
 
 
         # variable        
@@ -65,11 +74,72 @@ class BaseControl:
         self.pose_yaw = 0.0
         # self.WL = 0
         # self.WR = 0
+        self.WL_odom = 0
+        self.WR_odom = 0
      
     def cmdCB(self, data):
         self.trans_x = data.linear.x
         self.rotat_z = data.angular.z
         rospy.loginfo("Vx:{}  W: {}".format(self.trans_x , self.rotat_z))
+
+    #################################################################################################
+
+    def timerOdomCB(self, event):
+        v_factor = 0.181/3.2
+        try:
+
+            VL = self.WL_odom * 0.01 * v_factor
+            VR = self.WR_odom * 0.01 * v_factor
+
+            Vyaw = (VR-VL)/self.wheelSep
+            Vx = (VR+VL)/2.0
+            #print ("Twist success~")
+
+            # Pose
+            self.current_time = rospy.Time.now()
+            dt = (self.current_time - self.previous_time).to_sec()
+            self.previous_time = self.current_time
+            self.pose_x   = self.pose_x   + Vx * math.cos(self.pose_yaw) * dt
+            self.pose_y   = self.pose_y   + Vx * math.sin(self.pose_yaw) * dt
+            self.pose_yaw = self.pose_yaw + Vyaw * dt
+            pose_quat = tf.transformations.quaternion_from_euler(0,0,self.pose_yaw)
+
+            #print ("Pose success~")
+            
+            # Publish Odometry
+            msg = Odometry()
+            msg.header.stamp = self.current_time
+            msg.header.frame_id = self.odomId
+            msg.child_frame_id  = self.baseId
+            msg.pose.pose.position.x = self.pose_x
+            msg.pose.pose.position.y = self.pose_y
+            msg.pose.pose.position.z = 0.0
+            msg.pose.pose.orientation.x =  pose_quat[0]
+            msg.pose.pose.orientation.y =  pose_quat[1]
+            msg.pose.pose.orientation.z =  pose_quat[2]
+            msg.pose.pose.orientation.w =  pose_quat[3]
+            msg.twist.twist.linear.x = Vx
+            msg.twist.twist.angular.z = Vyaw
+
+            #print ("Odometry pub ")
+
+            for i in range(36):
+                msg.twist.covariance[i] = 0
+            msg.twist.covariance[0] = self.VxCov
+            msg.twist.covariance[35] = self.VyawCov
+            msg.pose.covariance = msg.twist.covariance
+            self.pub.publish(msg)
+
+            #print ("pub success ")
+
+            # TF Broadcaster
+            if self.pub_tf:
+                self.tf_broadcaster.sendTransform( (self.pose_x, self.pose_y, 0.0), pose_quat, self.current_time, self.baseId, self.odomId)          
+
+            
+        except: 
+            rospy.loginfo("Error in encoder value !") 
+            pass
 
     
 
@@ -95,8 +165,20 @@ class BaseControl:
             self.WR_send = 255
         if self.WL_send > 255:
             self.WL_send = 255
+        
+        if L_forward == 0:
+            self.WL_odom = -1 * self.WL_send
+        else:
+            self.WL_odom = 1 * self.WL_send
+
+        if R_forward == 0:
+            self.WR_odom = -1 * self.WR_send
+        else:
+            self.WR_odom = 1 * self.WR_send
+
         self.WL_send = str(self.WL_send)
         self.WR_send = str(self.WR_send)
+
         while len(self.WL_send)<3:
         	self.WL_send = "0"+self.WL_send
     	while len(self.WR_send)<3:
