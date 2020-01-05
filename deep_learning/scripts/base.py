@@ -18,6 +18,8 @@ class BaseControl:
         self.odom_topic = rospy.get_param('~odom_topic', '/odom2base_footprint') # topic name
         self.baseId = rospy.get_param('~base_id', 'base_footprint') # base link
         self.odomId = rospy.get_param('~odom_id', 'wheel_odom') # odom link    
+        
+        #self.odomId = rospy.get_param('~odom_id', 'odom') # odom link    
         self.pub_tf = bool(rospy.get_param('~pub_tf', True)) # whether publishes TF or not
 
         self.VxCov = float( rospy.get_param('~vx_cov', '1.0') ) # covariance for Vx measurement
@@ -57,7 +59,7 @@ class BaseControl:
         self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)
 
 
-        self.timer_odom = rospy.Timer(rospy.Duration(0.1), self.timerOdomCB)
+        #self.timer_odom = rospy.Timer(rospy.Duration(0.05), self.timerOdomCB)
         self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
         self.tf_broadcaster = tf.TransformBroadcaster()
 
@@ -85,13 +87,14 @@ class BaseControl:
     #################################################################################################
 
     def timerOdomCB(self, event):
-        v_factor = 0.181/3.2
+        v_factor = 0.181/2.2
+        r_factor = 0.6273
         try:
 
             VL = self.WL_odom * 0.01 * v_factor
             VR = self.WR_odom * 0.01 * v_factor
 
-            Vyaw = (VR-VL)/self.wheelSep
+            Vyaw = r_factor * (VR-VL)/self.wheelSep
             Vx = (VR+VL)/2.0
             #print ("Twist success~")
 
