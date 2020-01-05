@@ -10,31 +10,63 @@ import string
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
-#import machine_offical.py
-#import enviroment_dog1.py
+import machine_offical.py
+import enviroment_dog1.py
 
 
 def localization():
+    raw_input('《《《watting for localization,If done,press Enter to continue》》》')
 	pass
 
 def start():
-	print('Please put the bot in the real map')
-	raw_input('If done,press Enter to continue')
-	print('Starting localization')	
+	print('《《《Please put the bot in the real map》》》')
+	raw_input('《《《If done,press Enter to continue》》》')
+	print('《《《Starting localization》》》')	
 	localization()
-	print('Finish localization')
-	raw_input('bot is mactch the position in rviz,press Enter to continue')
+	print('《《《Finish localization》》》')
+	raw_input('《《《bot is mactch the position in rviz,press Enter to continue》》》')
 
 def finish():
-	raw_input('Finishing Demo,press Enter to finish')
+	raw_input('《《《Finishing Demo,press Enter to finish》》》')
 
-def get_pose(self,Imu_message):##########################Imu_message means input real position
-	self.position.x = Imu_message.x######################
-	self.position.y = Imu_message.y######################
+def get_pose(self):#####################################input real position
+    '''
+    #add in main#
+    rospy.init_node('turtle_tf_listener')
+    listener = tf.TransformListener()
+    '''
+    try:
+        (trans,rot) = listener.lookupTransform('/map', '/bot', rospy.Time(0))############################
+        self.position.x = trans[0]
+        self.position.y = trans[1]
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        continue
 
 def send_action_to_arduino(get_action):
-	
-
+	'''
+    #add in main#
+    rospy.init_node('AB_teleop')
+    pub = rospy.Publisher('/car/cmd_vel', Twist, queue_size=5)
+    '''
+    action = get_action
+    target_linear_vel = 0
+    target_angular_vel = 0
+    
+    if action == 0 :
+        target_angular_vel = 
+    elif action == 1 :
+        target_angular_vel = 
+    elif action == 2 :
+        target_angular_vel = 
+    elif action == 3 :
+        target_angular_vel = 
+    elif action == 4 :
+        target_angular_vel = 
+    elif action == 5 :
+        target_angular_vel = 
+    twist = Twist()
+    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = target_angular_vel
+    pub.publish(twist)
 
 def DQN():
     rospy.init_node('turtlebot3_dqn_stage_5')
@@ -160,7 +192,7 @@ if __name__ == "__main__":
 			print("target is too close to move,please repoint the target")
 		
 	'''
-	DQN()
+	#DQN()
 	finish()
 
 
