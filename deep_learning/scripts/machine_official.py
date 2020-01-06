@@ -217,7 +217,7 @@ if __name__ == '__main__':
     get_action = Float32MultiArray()
 
     tbCallBack = TensorBoard(log_dir=os.getenv("HOME")+"/tboard")
-    summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q2")
+    summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q3")
 
     state_size = 26
     action_size = 5

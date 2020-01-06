@@ -193,6 +193,9 @@ class Env():
             self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target)
             self.goal_distance = self.getGoalDistace()
             self.bot.movingAt(self.ramdom_bot,self.ramdom_bot_rotate)
+        else:
+            
+            pass
 
         state, done = self.getState(data)
         return np.asarray(state)
