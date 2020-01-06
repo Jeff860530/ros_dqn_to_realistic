@@ -55,7 +55,7 @@ class BaseControl:
         #         time.sleep(0.01)
 
         # ROS handler        
-        self.sub = rospy.Subscriber('/car/cmd_vel', Twist, self.cmdCB, queue_size=10)
+        self.sub = rospy.Subscriber('/dog/cmd_vel', Twist, self.cmdCB, queue_size=10)
         self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)
 
 
@@ -80,7 +80,7 @@ class BaseControl:
         self.WR_odom = 0
      
     def cmdCB(self, data):
-        self.trans_x = data.linear.x
+        self.trans_x = data.linear.x 
         self.rotat_z = data.angular.z
         rospy.loginfo("Vx:{}  W: {}".format(self.trans_x , self.rotat_z))
 
@@ -150,8 +150,8 @@ class BaseControl:
 
     def timerCmdCB(self, event):
 
-        self.WR_send = int(self.trans_x + self.wheelSep*self.rotat_z*2)
-        self.WL_send = int(self.trans_x - self.wheelSep*self.rotat_z*2)
+        self.WR_send = int((self.trans_x + self.wheelSep*self.rotat_z*2)*333)
+        self.WL_send = int((self.trans_x - self.wheelSep*self.rotat_z*2)*333)
         # rospy.logerr("WR_send: "+ chr(self.WR_send))
         # rospy.logerr("WL_send: "+ chr(self.WL_send))       
         if self.WR_send < 0:

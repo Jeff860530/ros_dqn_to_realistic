@@ -6,4 +6,6 @@ pip install -U rosinstall msgpack empy defusedxml netifaces
 
 pip install tensorflow==2.0.0
 
+pip install tensorflow-tensorboard
+
 pip install keras==2.1.5

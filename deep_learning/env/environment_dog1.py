@@ -42,13 +42,13 @@ from bot_move import MoveBot
 
 class Env():
     def __init__(self, action_size, real = False):
-        self.goal_x = 0
-        self.goal_y = 0
+        self.goal_x = 1
+        self.goal_y = 1
         self.heading = 0
         self.action_size = action_size
         self.initGoal = True
-        self.get_goalbox = True
-        self.position = Pose()
+        self.get_goalbox = False
+        self.position = Pose().position
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
         self.sub_odom = rospy.Subscriber('dog_odom', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty) # reset_simulation
@@ -149,9 +149,11 @@ class Env():
             Reward = 200
             self.goalNum = self.goalNum + 1
             self.pub_cmd_vel.publish(Twist())
-            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum,self.ramdom_target)
-            self.goal_distance = self.getGoalDistace()
+
+            #self.goal_x, self.goal_y = self.target.movingAt(self.goalNum,self.ramdom_target)
+            #self.goal_distance = self.getGoalDistace()
             #self.get_goalbox = False
+            #self.bot_stop()
 
         return Reward
 
@@ -179,16 +181,16 @@ class Env():
 
         return np.asarray(state), reward, done, goal
 
-    def bot_stop():
+    def bot_stop(self):
         self.pub_cmd_vel.publish(Twist())
 
     def reset(self):
         if not self.real:
             rospy.wait_for_service('gazebo/reset_world')
-        try:
-            self.reset_proxy() #problem
-        except (rospy.ServiceException) as e:
-            print("gazebo/reset_simulation service call failed")
+            try:
+                self.reset_proxy() #problem
+            except (rospy.ServiceException) as e:
+                print("gazebo/reset_simulation service call failed")
 
         data = None
         
@@ -207,6 +209,7 @@ class Env():
         else:
             (trans,rot) = self.listener.lookupTransform('/map', '/maker_tf', rospy.Time(0))
             self.goal_x, self.goal_y = trans[0], trans[1]
+            #print(trans[0], trans[1])
 
         self.goal_distance = self.getGoalDistace()
         

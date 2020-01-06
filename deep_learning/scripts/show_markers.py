@@ -45,16 +45,23 @@ def move(data):
         #print("position",data.point.x)
         markers.publishRectangle(p1, p2, 'red')   
 
-        br.sendTransform((data.point.x, data.point.y, 0),
+        
+    except:
+        rospy.loginfo("Get nothing")
+        pass
+
+    pub_tf(data)
+    
+    rospy.Rate(2).sleep() #1 Hz
+
+def pub_tf(data):
+    br.sendTransform((data.point.x, data.point.y, 0),
                         transformations.quaternion_from_euler(0, 0, 0),
                         rospy.Time.now(),
                         "maker_tf",
                         "map") 
-    except:
-        rospy.loginfo("Get nothing")
-        pass
-    
-    rospy.Rate(2).sleep() #1 Hz
+    rospy.loginfo("Set tf")
+
 
 if __name__ == '__main__':
     print("Init node")
@@ -62,7 +69,10 @@ if __name__ == '__main__':
     br = TransformBroadcaster()
     print("Init maker")
     markers = rviz_tools.RvizMarkers('/map', 'visualization_marker')
-    sub = rospy.Subscriber('/clicked_point', PointStamped, move)
     
+    sub = rospy.Subscriber('/clicked_point', PointStamped, move )
+    #pos = rospy.wait_for_message('/clicked_point', CameraInfo)
+    
+    #rospy.loginfo("Get nothing")
     rospy.spin()
     
