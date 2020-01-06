@@ -170,8 +170,9 @@ class Env():
 
         return np.asarray(state), reward, done, goal
 
-    def reset(self):
-        rospy.wait_for_service('gazebo/reset_world')
+    def reset(self, real = False):
+        if not real:
+            rospy.wait_for_service('gazebo/reset_world')
         try:
             self.reset_proxy() #problem
         except (rospy.ServiceException) as e:
@@ -188,12 +189,11 @@ class Env():
         # if self.initGoal:
         #     self.goal_x, self.goal_y = self.target.movingAt(self.goalNum)
         #     self.initGoal = False
-        self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target)
+        if not real:
+            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target)
+            self.goal_distance = self.getGoalDistace()
+            self.bot.movingAt(self.ramdom_bot,self.ramdom_bot_rotate)
 
-        self.goal_distance = self.getGoalDistace()
         state, done = self.getState(data)
-
-        self.bot.movingAt(self.ramdom_bot,self.ramdom_bot_rotate)
-
         return np.asarray(state)
 
