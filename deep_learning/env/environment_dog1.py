@@ -28,6 +28,7 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import tf
 #from respawnGoal import Respawn
 import time
 import rospkg
@@ -40,14 +41,14 @@ from target_move import MoveTarget
 from bot_move import MoveBot
 
 class Env():
-    def __init__(self, action_size):
+    def __init__(self, action_size, real = False):
         self.goal_x = 0
         self.goal_y = 0
         self.heading = 0
         self.action_size = action_size
         self.initGoal = True
         self.get_goalbox = True
-        self.position = Pose()#######
+        self.position = Pose()
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
         self.sub_odom = rospy.Subscriber('dog_odom', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty) # reset_simulation
@@ -55,14 +56,22 @@ class Env():
         #self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
         #self.respawn_goal = Respawn()
 
-        self.target = MoveTarget()
-        self.bot = MoveBot()
+        
 
         self.ramdom_target = False
 
         self.ramdom_bot = False
         self.ramdom_bot_rotate = False
         self.goalNum = 0
+
+        self.real = real
+
+        if not self.real:
+            self.bot = MoveBot()
+            self.target = MoveTarget()
+
+        if self.real:
+            self.listener = tf.TransformListener()
 
 
     def getGoalDistace(self):
@@ -170,8 +179,11 @@ class Env():
 
         return np.asarray(state), reward, done, goal
 
-    def reset(self, real = False):
-        if not real:
+    def bot_stop():
+        self.pub_cmd_vel.publish(Twist())
+
+    def reset(self):
+        if not self.real:
             rospy.wait_for_service('gazebo/reset_world')
         try:
             self.reset_proxy() #problem
@@ -189,13 +201,15 @@ class Env():
         # if self.initGoal:
         #     self.goal_x, self.goal_y = self.target.movingAt(self.goalNum)
         #     self.initGoal = False
-        if not real:
-            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target)
-            self.goal_distance = self.getGoalDistace()
+        if not self.real:
+            self.goal_x, self.goal_y = self.target.movingAt(self.goalNum, self.ramdom_target) 
             self.bot.movingAt(self.ramdom_bot,self.ramdom_bot_rotate)
         else:
-            
-            pass
+            (trans,rot) = self.listener.lookupTransform('/map', '/maker_tf', rospy.Time(0))
+            self.goal_x, self.goal_y = trans[0], trans[1]
+
+        self.goal_distance = self.getGoalDistace()
+        
 
         state, done = self.getState(data)
         return np.asarray(state)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/home/ros/tfp27/bin/python
 
 import serial
 import time
@@ -38,10 +38,7 @@ def finish():
 
 
 def main():
-    rospy.init_node('real_dqn')
-
-    result = Float32MultiArray()
-    get_action = Float32MultiArray()
+    rospy.init_node('real_dqn_machine')
     
     tbCallBack = TensorBoard(log_dir=os.getenv("HOME")+"/tboard")
     summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/real")
@@ -49,12 +46,14 @@ def main():
     state_size = 26
     action_size = 5
 
-    env = Env(action_size)
+    env = Env(action_size, real = True)
 
 
     print("Creat ReinforceAgent")
     agent = machine_offical.ReinforceAgent(state_size, action_size)
+    agent.dirPath = env_path+'/real_model/'
 
+    agent.save_model = True
 
     scores, episodes = [], []
     global_step = 0
@@ -63,18 +62,19 @@ def main():
     done_step = 0
     for e in range(agent.load_episode + 1, EPISODES):
         done = False
+        env.bot_stop()
 
         ### manual reset
-        raw_input('Manualing reset bot positin.If done,press Enter to continue')
+        raw_input('Manualing reset bot positin. If done, press Enter to continue')
         ###
         time.sleep(3)
         ### manual choose target
-        raw_input('Manualing choose target.If done,press Enter to continue')
+        raw_input('Manualing choose target. If done, press Enter to continue')
         ####mark to get target##########################################
 
 
         ###rplidar scan_f to get state
-        state = env.reset(real = True)
+        state = env.reset()
 
         score = 0
         time_out_step = 500
@@ -95,25 +95,18 @@ def main():
             
             score += reward
             state = next_state
-            get_action.data = [action, score, reward]
-            pub_get_action.publish(get_action)
+
             if t >= time_out_step:
                 rospy.loginfo("Time out!!")
                 done = True
 
             if done:
                 done_step += 1
-                ##
+
                 with summary_writer.as_default():
                     tf.summary.scalar('Total_reward', score,step=done_step)
                     tf.summary.scalar('Average_max_Q_value', np.max(agent.q_value),step=done_step)
-                
-                
-                # summary_writer.summary.scalar("Total reward", score)
-                # summary_writer.summary.scalar("Average mac Q-value", np.max(agent.q_value))
-                ##
-                result.data = [score, np.max(agent.q_value)]
-                pub_result.publish(result)
+            
                 agent.updateTargetModel()
                 scores.append(score)
                 episodes.append(e)

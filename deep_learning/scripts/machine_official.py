@@ -210,12 +210,8 @@ class ReinforceAgent():
         self.model.fit(X_batch, Y_batch, batch_size=self.batch_size, epochs=1, verbose=0,  callbacks=[tbCallBack])
 
 if __name__ == '__main__':
-    rospy.init_node('turtlebot3_dqn_stage_5')
-    pub_result = rospy.Publisher('result', Float32MultiArray, queue_size=5)
-    pub_get_action = rospy.Publisher('get_action', Float32MultiArray, queue_size=5)
-    result = Float32MultiArray()
-    get_action = Float32MultiArray()
-
+    rospy.init_node('dqn_machine')
+    
     tbCallBack = TensorBoard(log_dir=os.getenv("HOME")+"/tboard")
     summary_writer = tf.summary.create_file_writer(os.getenv("HOME")+"/tboard/q3")
 
@@ -261,8 +257,8 @@ if __name__ == '__main__':
             
             score += reward
             state = next_state
-            get_action.data = [action, score, reward]
-            pub_get_action.publish(get_action)
+            #get_action.data = [action, score, reward]
+            #pub_get_action.publish(get_action)
 
             if t >= time_out_step:
                 rospy.loginfo("Time out!!")
@@ -276,8 +272,6 @@ if __name__ == '__main__':
                     tf.summary.scalar('Average_max_Q_value', np.max(agent.q_value),step=done_step)
                 
                 
-                result.data = [score, np.max(agent.q_value)]
-                pub_result.publish(result)
                 agent.updateTargetModel()
                 scores.append(score)
                 episodes.append(e)
