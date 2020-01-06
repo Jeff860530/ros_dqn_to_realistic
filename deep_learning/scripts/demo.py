@@ -22,7 +22,7 @@ import machine_offical
 
 
 def localization():
-    #raw_input('watting for localization,If done,press Enter to continue')
+    raw_input('watting for localization,If done,press Enter to continue')
 	#pass
 def start():
 	print('Please put the bot in the real map')
@@ -36,31 +36,6 @@ def finish():
 	raw_input('Finishing Demo,press Enter to finish')
 
 
-def send_action_to_arduino(get_action):
-	'''
-    #add in main#
-    rospy.init_node('AB_teleop')
-    pub = rospy.Publisher('/car/cmd_vel', Twist, queue_size=5)
-    '''
-    action = get_action
-    target_linear_vel = 0
-    target_angular_vel = 0
-    
-    if action == 0 :
-        target_angular_vel = 
-    elif action == 1 :
-        target_angular_vel = 
-    elif action == 2 :
-        target_angular_vel = 
-    elif action == 3 :
-        target_angular_vel = 
-    elif action == 4 :
-        target_angular_vel = 
-    elif action == 5 :
-        target_angular_vel = 
-    twist = Twist()
-    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = target_angular_vel
-    pub.publish(twist)
 
 def main():
     rospy.init_node('real_dqn')
@@ -90,7 +65,7 @@ def main():
         done = False
 
         ### manual reset
-        raw_input('Manualing reset bot.If done,press Enter to continue')
+        raw_input('Manualing reset bot positin.If done,press Enter to continue')
         ###
         time.sleep(3)
         ### manual choose target
@@ -122,7 +97,6 @@ def main():
             state = next_state
             get_action.data = [action, score, reward]
             pub_get_action.publish(get_action)
-			send_action_to_arduino(get_action)###################################get_action means action to gazbo
             if t >= time_out_step:
                 rospy.loginfo("Time out!!")
                 done = True
