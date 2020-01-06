@@ -84,16 +84,26 @@
     </spherical_coordinates>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>0.209726 -0.181729 7.02998 -2e-06 1.5498 1.56819</pose>
+        <pose frame=''>0.209752 -0.171805 7.03019 -2e-06 1.5498 1.56819</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
     <state world_name='default'>
-      <sim_time>50 937000000</sim_time>
-      <real_time>16 894362686</real_time>
-      <wall_time>1578296445 922075264</wall_time>
-      <iterations>16741</iterations>
+      <sim_time>99 833000000</sim_time>
+      <real_time>65 836639937</real_time>
+      <wall_time>1578296610 56210762</wall_time>
+      <iterations>65637</iterations>
+      <model name='Untitled'>
+        <pose frame=''>0 -1 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='Wall_35'>
+          <pose frame=''>0 -1 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
       <model name='dog_house'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -155,7 +165,7 @@
       </light>
     </state>
     <model name='dog_house'>
-      <pose frame=''>-0.005422 -0.01016 0 0 -0 0</pose>
+      <pose frame=''>-0.41078 -0.201725 0 0 -0 0</pose>
       <link name='Wall_14'>
         <collision name='Wall_14_Collision'>
           <geometry>
@@ -446,6 +456,52 @@
           </material>
         </visual>
         <pose frame=''>1.34 1.3505 0 0 0 -0.786968</pose>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+      <static>1</static>
+    </model>
+    <model name='Untitled'>
+      <pose frame=''>-0.307667 -0.8909 0 0 -0 0</pose>
+      <link name='Wall_35'>
+        <collision name='Wall_35_Collision'>
+          <geometry>
+            <box>
+              <size>0.3 0.3 0.5</size>
+            </box>
+          </geometry>
+          <pose frame=''>0 0 0.25 0 -0 0</pose>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='Wall_35_Visual'>
+          <pose frame=''>0 0 0.25 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+            <ambient>0.435294 0.796078 0.67451 1</ambient>
+          </material>
+        </visual>
+        <pose frame=''>0 0 0 0 -0 0</pose>
         <self_collide>0</self_collide>
         <kinematic>0</kinematic>
         <gravity>1</gravity>
