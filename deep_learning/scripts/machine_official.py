@@ -270,15 +270,12 @@ if __name__ == '__main__':
 
             if done:
                 done_step += 1
-                ##
+
                 with summary_writer.as_default():
                     tf.summary.scalar('Total_reward', score,step=done_step)
                     tf.summary.scalar('Average_max_Q_value', np.max(agent.q_value),step=done_step)
                 
                 
-                # summary_writer.summary.scalar("Total reward", score)
-                # summary_writer.summary.scalar("Average mac Q-value", np.max(agent.q_value))
-                ##
                 result.data = [score, np.max(agent.q_value)]
                 pub_result.publish(result)
                 agent.updateTargetModel()

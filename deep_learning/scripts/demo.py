@@ -25,15 +25,15 @@ def localization():
     #raw_input('watting for localization,If done,press Enter to continue')
 	#pass
 def start():
-	print('《《《Please put the bot in the real map》》》')
-	raw_input('《《《If done,press Enter to continue》》》')
-	print('《《《Starting localization》》》')	
+	print('Please put the bot in the real map')
+	raw_input('If done,press Enter to continue')
+	print('Starting localization')	
 	localization()
-	print('《《《Finish localization》》》')
-	raw_input('《《《bot is mactch the position in rviz,press Enter to continue》》》')
+	print('Finish localization')
+	raw_input('bot is mactch the position in rviz,press Enter to continue')
 
 def finish():
-	raw_input('《《《Finishing Demo,press Enter to finish》》》')
+	raw_input('Finishing Demo,press Enter to finish')
 
 
 def send_action_to_arduino(get_action):
@@ -90,27 +90,21 @@ def main():
         done = False
 
         ### manual reset
-    
+        raw_input('Manualing reset bot.If done,press Enter to continue')
         ###
-
+        time.sleep(3)
         ### manual choose target
-    
-        ###
+        raw_input('Manualing choose target.If done,press Enter to continue')
+        ####mark to get target##########################################
+
+
+        ###rplidar scan_f to get state
         state = env.reset(real = True)
 
         score = 0
         time_out_step = 500
 
-        
-        if e > 100:
-            env.ramdom_target = True
 
-        if e > 150:
-            env.ramdom_bot = True
-
-        if e > 175:
-            env.ramdom_bot_rotate = True
-        
         for t in range(agent.episode_step):
             action = agent.getAction(state)
 
