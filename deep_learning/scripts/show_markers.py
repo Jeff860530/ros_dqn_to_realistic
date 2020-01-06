@@ -10,7 +10,7 @@ import random
 import roslib
 import rospy
 from geometry_msgs.msg import Pose, Point, Quaternion, Vector3, Polygon
-from tf import transformations # rotation_matrix(), concatenate_matrices()
+from tf import transformations, TransformBroadcaster # rotation_matrix(), concatenate_matrices()
 
 import rviz_tools as rviz_tools
 
@@ -44,14 +44,22 @@ def move(data):
         p1,p2 = move_target(data.point.x, data.point.y)
         #print("position",data.point.x)
         markers.publishRectangle(p1, p2, 'red')   
+
+        br.sendTransform((data.point.x, data.point.y, 0),
+                        transformations.quaternion_from_euler(0, 0, 0),
+                        rospy.Time.now(),
+                        "maker_tf",
+                        "map") 
     except:
         rospy.loginfo("Get nothing")
         pass
+    
     rospy.Rate(2).sleep() #1 Hz
 
 if __name__ == '__main__':
     print("Init node")
     rospy.init_node('maker', anonymous=False, log_level=rospy.INFO, disable_signals=False)
+    br = TransformBroadcaster()
     print("Init maker")
     markers = rviz_tools.RvizMarkers('/map', 'visualization_marker')
     sub = rospy.Subscriber('/clicked_point', PointStamped, move)
