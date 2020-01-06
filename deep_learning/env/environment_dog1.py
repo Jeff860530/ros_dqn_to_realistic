@@ -49,7 +49,7 @@ class Env():
         self.get_goalbox = True
         self.position = Pose()#######
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
-        self.sub_odom = rospy.Subscriber('odom', Odometry, self.getOdometry)
+        self.sub_odom = rospy.Subscriber('dog_odom', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty) # reset_simulation
         #self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         #self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
