@@ -60,3 +60,21 @@ rosrun deep_learning laser_filter.py
 
 rosrun deep_learning machine_official_t.py
 ```
+
+### Transfer learning in realistic
+
+```shell= 
+roslaunch deep_learning ml_real.launch
+
+roslaunch deep_learning laser.launch real_scan:=true
+
+roslaunch deep_learning rf2o.launch
+
+roslaunch deep_learning amcl.launch
+
+rosrun deep_learning show_markers.py
+
+rosrun deep_learning base.py
+
+rosrun deep_learning real_train.py
+```
