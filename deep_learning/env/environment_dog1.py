@@ -50,7 +50,7 @@ class Env():
         self.get_goalbox = False
         self.position = Pose().position
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
-        self.sub_odom = rospy.Subscriber('dog_odom', Odometry, self.getOdometry)
+        self.sub_odom = rospy.Subscriber('/wheel_odom', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty) # reset_simulation
         #self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         #self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
@@ -80,10 +80,18 @@ class Env():
         return goal_distance
 
     def getOdometry(self, odom):
-        self.position = odom.pose.pose.position
-        orientation = odom.pose.pose.orientation
-        orientation_list = [orientation.x, orientation.y, orientation.z, orientation.w]
-        _, _, yaw = euler_from_quaternion(orientation_list)
+
+        (T,R) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+
+        self.position.x = T[0]
+        self.position.y = T[1]
+        #self.position = odom.pose.pose.position
+        #orientation = odom.pose.pose.orientation
+        #orientation_list = [orientation.x, orientation.y, orientation.z, orientation.w]
+        #_, _, yaw = euler_from_quaternion(orientation_list)
+        yaw = R[2]
+
+        rospy.loginfo(self.position.x, self.position.y)
 
         goal_angle = math.atan2(self.goal_y - self.position.y, self.goal_x - self.position.x)
 
@@ -116,8 +124,11 @@ class Env():
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
         current_distance = float(current_distance)
-        if current_distance < 0.2:
+        rospy.loginfo(current_distance)
+        #rospy.loginfo(format(self.position.x,self.position.y))
+        if current_distance < 0.4:
             self.get_goalbox = True
+            print("self.get_goalbox = ",self.get_goalbox)
             done = True
 
         return scan_range + [heading, current_distance], done
@@ -144,6 +155,7 @@ class Env():
             Reward = -200
             self.pub_cmd_vel.publish(Twist())
 
+        #print("2self.get_goalbox = ",self.get_goalbox)
         if self.get_goalbox:
             rospy.loginfo("Goal!!")
             Reward = 200
