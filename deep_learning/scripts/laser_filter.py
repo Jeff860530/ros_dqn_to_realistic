@@ -47,6 +47,6 @@ def readLaser(msg, out, real):
     rospy.loginfo("Laser filted !!")
 
 if __name__ == '__main__':
-    real = rospy.get_param("~real",False)
+    real = bool(rospy.get_param("~real",False))
     pub = rospy.Publisher('scan_f', LaserScan, queue_size=10)
     filter(24,real=real)
