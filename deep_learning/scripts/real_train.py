@@ -303,10 +303,9 @@ def main():
                 param_keys = ['epsilon']
                 param_values = [agent.epsilon]
                 param_dictionary = dict(zip(param_keys, param_values))
-                if not goal:
-                    break
-                else:
-                    time_out_step = t + 400
+                
+                break
+
 
             global_step += 1
             if global_step % agent.target_update == 0:

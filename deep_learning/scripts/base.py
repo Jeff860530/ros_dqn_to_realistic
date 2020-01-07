@@ -59,7 +59,7 @@ class BaseControl:
         self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)
 
 
-        self.timer_odom = rospy.Timer(rospy.Duration(0.05), self.timerOdomCB)
+        #self.timer_odom = rospy.Timer(rospy.Duration(0.05), self.timerOdomCB)
         self.timer_cmd = rospy.Timer(rospy.Duration(0.1), self.timerCmdCB) # 10Hz
         self.tf_broadcaster = tf.TransformBroadcaster()
 

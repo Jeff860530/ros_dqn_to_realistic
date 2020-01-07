@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-    <arg name="real" value="false"/>
+    <param name="real_scan" value="true"/>
 
     <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
         <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
@@ -11,9 +11,9 @@
         <param name="angle_compensate"    type="bool"   value="true"/>
     </node>
 
-    <node pkg="deep_learning" name="filter" type="laser_filter.py" respawn="true">
-        <param name="real" value="$(arg real)"/>
-    <node/>
+    <node pkg="deep_learning" name="filter" type="laser_filter.py" output="screen">
+        <param name="real_scan" value="$(arg real_scan)"/>
+    </node>
 
       
 </launch>

@@ -50,11 +50,13 @@ class Env():
         self.get_goalbox = False
         self.position = Pose().position
         self.pub_cmd_vel = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
-        self.sub_odom = rospy.Subscriber('/wheel_odom', Odometry, self.getOdometry)
+        self.sub_odom = rospy.Subscriber('/odom', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty) # reset_simulation
         #self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         #self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
         #self.respawn_goal = Respawn()
+
+        #self.timer_tf = rospy.Timer(rospy.Duration(0.1), self.timertf)
 
         
 
@@ -70,8 +72,8 @@ class Env():
             self.bot = MoveBot()
             self.target = MoveTarget()
 
-        if self.real:
-            self.listener = tf.TransformListener()
+
+        self.listener = tf.TransformListener()
 
 
     def getGoalDistace(self):
@@ -79,19 +81,31 @@ class Env():
 
         return goal_distance
 
-    def getOdometry(self, odom):
-
+    def timertf(self):
         (T,R) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+
 
         self.position.x = T[0]
         self.position.y = T[1]
+        #rospy.loginfo(format(self.position.x)+ " / "+format(self.position.y))
+
+        return R[2]
+
+    def getOdometry(self, odom):
+        #rospy.loginfo("Call me?")
+        yaw = self.timertf()
+        #(T,R) = self.listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+
+
+        #self.position.x = T[0]
+        #self.position.y = T[1]
         #self.position = odom.pose.pose.position
         #orientation = odom.pose.pose.orientation
         #orientation_list = [orientation.x, orientation.y, orientation.z, orientation.w]
         #_, _, yaw = euler_from_quaternion(orientation_list)
-        yaw = R[2]
+        #yaw = R[2]
 
-        rospy.loginfo(self.position.x, self.position.y)
+        #rospy.loginfo(format(self.position.x)+ " / "+format(self.position.y))
 
         goal_angle = math.atan2(self.goal_y - self.position.y, self.goal_x - self.position.x)
 
@@ -102,7 +116,7 @@ class Env():
         elif heading < -pi:
             heading += 2 * pi
 
-        self.heading = round(heading, 2)
+        #self.heading = round(heading, 2)
 
     def getState(self, scan):
         scan_range = []
@@ -124,7 +138,7 @@ class Env():
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
         current_distance = float(current_distance)
-        rospy.loginfo(current_distance)
+        #rospy.loginfo(current_distance)
         #rospy.loginfo(format(self.position.x,self.position.y))
         if current_distance < 0.4:
             self.get_goalbox = True

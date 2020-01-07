@@ -11,7 +11,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         try:
-            (trans,rot) = listener.lookupTransform('/map', '/maker_tf', rospy.Time(0))
+            (trans,rot) = listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
             rospy.loginfo(format(trans[0])+" / "+format(trans[1]))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             rospy.loginfo("no message")

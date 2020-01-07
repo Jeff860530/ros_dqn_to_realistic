@@ -37,12 +37,12 @@ def vels(target_linear_vel, target_angular_vel):
 if __name__=="__main__":
     settings = termios.tcgetattr(sys.stdin)
 
-    gage = 10
-    gage2 = 10
-    max_ = 300
+    gage = 0.2
+    gage2 = 0.2
+    max_ = 0.6
 
     rospy.init_node('AB_teleop')
-    pub = rospy.Publisher('/car/cmd_vel', Twist, queue_size=5)
+    pub = rospy.Publisher('/dog/cmd_vel', Twist, queue_size=5)
 
     status = 0
     target_linear_vel = 0
