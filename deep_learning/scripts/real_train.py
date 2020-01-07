@@ -242,17 +242,17 @@ def main():
         ### manual reset
         raw_input('Manualing reset bot positin. If done, press Enter to continue')
         ###
-        time.sleep(3)
+        time.sleep(1)
 
         while True:
             try:
                 ### manual choose target
                 raw_input('Manualing choose target. If done, press Enter to continue')
                 ####mark to get target##########################################
-
                 ###rplidar scan_f to get state
                 state = env.reset()
             except:
+                print('!!!Do not get the target please try again  !!!')
                 continue
             break
         
