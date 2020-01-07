@@ -108,8 +108,8 @@ class ReinforceAgent():
             if i==5 or i==7 :
                 layer.trainable=True
             else:
-                #layer.trainable=False
-                layer.trainable=True
+                layer.trainable=False
+                #layer.trainable=True
              
         for i,layer in enumerate(self.model.layers):
             if layer.trainable==True:
