@@ -7,6 +7,8 @@ step1:
 training robot with idel car (name:bot) [in simulator]
 for 200 epochs
 
+<img src="https://github.com/tony92151/ros_dqn_to_realistic/blob/master/image/step1.gif"/>
+
 step2:
 
 training robot with different car's performance (less wheel torque, more car mass) (name:bot2) [in simulator]
@@ -14,6 +16,8 @@ for 60 epochs
 
 step3:
 training robot in real world
+
+<img src="https://github.com/tony92151/ros_dqn_to_realistic/blob/master/image/step3.gif"/>
 
 # How to use
 
