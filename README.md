@@ -82,3 +82,10 @@ rosrun deep_learning base.py
 
 rosrun deep_learning real_train.py
 ```
+
+### Project leads
+- [x] [Tony Guo](https://github.com/tony92151) - @Tony Guo
+
+### Contributors
+
+- [x] [Jeff](https://github.com/Jeff860530) - @Jeff
